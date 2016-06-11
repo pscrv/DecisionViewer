@@ -4,7 +4,7 @@
 
         <div class="container">
             <div class="row">
-                <div class="col-sm-4"">
+                <div class="col-sm-4">
                     <h1> {{ decision.CaseNumber}} </h1>
                     <p> {{ decision.ECLI}} </p>
                     <p> {{decision.DecisionDate}} by {{ decision.Board }}
@@ -19,9 +19,35 @@
                     <p> {{ decision.Keywords }} </p>
                 </div>
                 <div class="col-sm-8">
-                    {% for para in reasons %}
-                        <p> {{ para }} </p>
-                    {% endfor %}
+                    <ul class="nav nav-tabs">
+                      <li><a data-toggle="tab" href="#facts">Facts</a></li>
+                      <li class="active"><a data-toggle="tab" href="#reasons">Reasons</a></li>
+                      <li><a data-toggle="tab" href="#order">Order</a></li>
+                    </ul>
+
+                    <div class="tab-content">
+                      <div id="facts" class="tab-pane fade">
+                        <h4> Summary of Facts and Submissions </h4>
+                        {% for para in facts %}
+                            <p> {{ para }} </p>
+                        {% endfor %}
+                      </div>
+                      <div id="reasons" class="tab-pane fade in active">
+                        <h4> Reasons for the Decision </h4>
+                        {% for para in reasons %}
+                            <p> {{ para }} </p>
+                        {% endfor %}
+                      </div>
+                      <div id="order" class="tab-pane fade">
+                        <h4> Order </h4>
+                        {% for para in order %}
+                            <p> {{ para }} </p>
+                        {% endfor %}
+                      </div>
+                    </div>
+
+
+
                 </div>
             </div>
         </div>

@@ -26,11 +26,18 @@ class Decision(models.Model):
 	Order = models.TextField(default = "")
 
 
-	def ReasonsInParagraphs(self):
-		text = self.Reasons
-		out = text.split("\n\n")
-		return out
 
+	def ReasonsInParagraphs(self):
+		return self.FormatInParagraphs(self.Reasons)
+
+	def FactsAndSubmissionsInParagraphs(self):
+		return self.FormatInParagraphs(self.FactsAndSubmissions)
+
+	def OrderInParagraphs(self):
+		return self.FormatInParagraphs(self.Order)
+
+	def FormatInParagraphs(self, text):
+		return text.split("\n\n")
 
 	def __str__(self):
 		return self.CaseNumber

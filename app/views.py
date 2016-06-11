@@ -7,10 +7,13 @@ from django.http import HttpRequest
 from django.template import RequestContext
 from datetime import datetime
 from .models import Decision
+import populateDB
 
 def home(request):
     """Renders the home page."""
     assert isinstance(request, HttpRequest)
+    if Decision.objects.count() == 0:
+        populateDB.GetDecisions()
     return render(
         request,
         'app/index.html',
@@ -27,14 +30,18 @@ def decision_details(request, pk):
 	"""Renders the decision_details page."""
 	assert isinstance(request, HttpRequest)
 	decision = get_object_or_404(Decision.objects, pk = pk)
+	facts = decision.FactsAndSubmissionsInParagraphs()
 	reasons = decision.ReasonsInParagraphs()
+	order = decision.OrderInParagraphs()
 	return render(
 		request,
 		'app/decision_details.html',
 		context_instance = RequestContext(request, 
 		{ 
 			'decision':decision,
-			'reasons':reasons 
+			'facts': facts,
+			'reasons':reasons,
+			'order': order,
 		})
 		)
 
