@@ -1,0 +1,29 @@
+﻿{% extends "app/layout.html" %}
+
+{% block content %}
+
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-4"">
+                    <h1> {{ decision.CaseNumber}} </h1>
+                    <p> {{ decision.ECLI}} </p>
+                    <p> {{decision.DecisionDate}} by {{ decision.Board }}
+                        {% if decision.OnlineDate %}
+                            (online since {{ decision.OnlineDate }})
+                        {% endif %}
+                    </p>
+                    <h4> {{ decision.Title }} </h4>
+                    <p> {{ decision.Applicant }} </p>                    
+                    {% if decision.Articles %} <p> Article(s) {{ decision.Articles }} </p> {% endif %}
+                    {% if decision.Rules %} <p> Rules {{ decision.Rules }} </p> {% endif %}
+                    <p> {{ decision.Keywords }} </p>
+                </div>
+                <div class="col-sm-8">
+                    {% for para in reasons %}
+                        <p> {{ para }} </p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+{% endblock %}

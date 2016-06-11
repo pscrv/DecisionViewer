@@ -1,0 +1,23 @@
+{% extends "app/layout.html" %}
+
+{% block content %}
+	    
+            {% for dec in decisions %}
+            <a href="{% url 'decision_details' pk=dec.pk %}">
+                <div class="row">
+                    <div class="col-sm-2">
+		                {{ dec.CaseNumber }}
+                    </div>
+                    <div class="col-sm-1">
+                        {{ dec.Board }}
+                    </div>
+                    <div class="col-sm-4">
+                        {{ dec.Title }}
+                    </div>
+                    <hr />
+                </div>
+            </a>
+            {% endfor %}
+
+
+{% endblock %}

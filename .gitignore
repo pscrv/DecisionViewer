@@ -1,0 +1,13 @@
+*.pyc
+__pycache__
+bin
+obj
+env
+db.sqlite3
+/static
+.DS_Store
+ptvs_virtualenv_proxy.py
+requirements.txt
+readme.mht
+web.config
+web.debug.config
