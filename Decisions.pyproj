@@ -34,15 +34,27 @@
     <Compile Include="app\AppConstants.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\AppUtils.py">
+    <Compile Include="app\AppState.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\ClassProperty.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\epofacade.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\forms.py" />
     <Compile Include="app\models.py" />
+    <Compile Include="app\test_app_classes.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\test_modules.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\urls.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\tests.py" />
+    <Compile Include="app\test_views.py" />
     <Compile Include="app\views.py" />
     <Compile Include="app\__init__.py" />
     <Compile Include="clearDB.py">

@@ -9,7 +9,7 @@ import re
 from string import punctuation
 from bs4 import BeautifulSoup
 
-from app.AppConstants import url, noPunctionTranslationTable, factFinder, reasonsFinder, orderFinder
+from app.AppConstants import searchUrl, noPunctionTranslationTable, factFinder, reasonsFinder, orderFinder
 
 import os
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Decisions.settings')
@@ -23,7 +23,7 @@ def _parseMeta(soup, name):
 
 
 def GetDecisions():
-	decisionList = requests.get(url).content
+	decisionList = requests.get(searchUrl).content
 	listSoup = BeautifulSoup(decisionList, "html.parser")
 	results = listSoup.find_all('r')
 

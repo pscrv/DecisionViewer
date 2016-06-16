@@ -7,6 +7,7 @@ from django.http import HttpRequest
 from django.template import RequestContext
 from datetime import datetime
 from .models import Decision
+from .AppState import AppState
 import populateDB
 
 def home(request):
@@ -22,7 +23,7 @@ def home(request):
             'title':'Decision Viewer',
             'year':datetime.now().year,
 			'month':datetime.now().month - 1,
-			'decisions':Decision.objects.all(),
+			'decisions':AppState.LatestDecisions,
         })
     )
 

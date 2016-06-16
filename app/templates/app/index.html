@@ -1,6 +1,8 @@
 {% extends "app/layout.html" %}
 
 {% block content %}
+
+            <h3> The latest ten decisions </h3>
 	    
             {% for dec in decisions %}
             <a href="{% url 'decision_details' pk=dec.pk %}">
