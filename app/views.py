@@ -8,43 +8,38 @@ from django.template import RequestContext
 from datetime import datetime
 from .models import Decision
 from .AppState import AppState
-import populateDB
 
 def home(request):
     """Renders the home page."""
     assert isinstance(request, HttpRequest)
-    if Decision.objects.count() == 0:
-        populateDB.GetDecisions()
     return render(
         request,
         'app/index.html',
         context_instance = RequestContext(request,
         {
             'title':'Decision Viewer',
-            'year':datetime.now().year,
-			'month':datetime.now().month - 1,
-			'decisions':AppState.LatestDecisions,
+            'appstate':AppState,
         })
     )
 
 def decision_details(request, pk):
-	"""Renders the decision_details page."""
-	assert isinstance(request, HttpRequest)
-	decision = get_object_or_404(Decision.objects, pk = pk)
-	facts = decision.FactsAndSubmissionsInParagraphs()
-	reasons = decision.ReasonsInParagraphs()
-	order = decision.OrderInParagraphs()
-	return render(
-		request,
-		'app/decision_details.html',
-		context_instance = RequestContext(request, 
-		{ 
-			'decision':decision,
-			'facts': facts,
-			'reasons':reasons,
-			'order': order,
-		})
-		)
+    """Renders the decision_details page."""
+    assert isinstance(request, HttpRequest)
+
+    try:
+        decision = get_object_or_404(Decision.objects, pk = pk)
+    except Decision.DoesNotExist:
+        pass
+
+    return render(
+        request,
+        'app/decision_details.html',
+        context_instance = RequestContext(request, 
+        { 
+            'appstate':AppState,
+	        'decision':decision,
+        })
+        )
 
 
 

@@ -5,44 +5,60 @@
         <div class="container">
             <div class="row">
                 <div class="col-sm-4">
-                    <h1> {{ decision.CaseNumber}} </h1>
-                    <p> {{ decision.ECLI}} </p>
-                    <p> {{decision.DecisionDate}} by {{ decision.Board }}
+                    <h1 class="casenumber"> {{ decision.CaseNumber}} </h1>
+                    <p class="headword"> {{ decision.Headword}}</p>
+                    <p class="ECLI"> {{ decision.ECLI}} </p>
+                    <p class="date+board"> {{decision.DecisionDate}} by board {{ decision.Board }}
                         {% if decision.OnlineDate %}
                             (online since {{ decision.OnlineDate }})
                         {% endif %}
                     </p>
-                    <h4> {{ decision.Title }} </h4>
-                    <p> {{ decision.Applicant }} </p>                    
-                    {% if decision.Articles %} <p> Article(s) {{ decision.Articles }} </p> {% endif %}
-                    {% if decision.Rules %} <p> Rules {{ decision.Rules }} </p> {% endif %}
-                    <p> {{ decision.Keywords }} </p>
+                    <h4 class="title"> {{ decision.Title }} </h4>
+                    <p class="applicant"> {{ decision.Applicant }} </p>
+                    {% if decision.Opponents %} <p class="opponents">Opponents: {{ decision.Opponents}} </p> {% endif %}
+                    {% if decision.Articles %} <p class="articles+rules"> Article(s) {{ decision.Articles }} </p> {% endif %}
+                    {% if decision.Rules %} <p class="articles+rules"> Rules {{ decision.Rules }} </p> {% endif %}
+                    <p class="keywords"> {{ decision.Keywords }} </p>
+
+                    {% if decision.CitedCases %} 
+                        <p class="citeddecisions"> 
+                            Cited decisions: {{ decision.CitedCases }}
+                        </p> 
+                    {% endif %}
                 </div>
+
+
+
                 <div class="col-sm-8">
                     <ul class="nav nav-tabs">
                       <li><a data-toggle="tab" href="#facts">Facts</a></li>
                       <li class="active"><a data-toggle="tab" href="#reasons">Reasons</a></li>
                       <li><a data-toggle="tab" href="#order">Order</a></li>
+                      <li><a data-toggle="tab" href="#comments">Comments</a></li>
                     </ul>
 
                     <div class="tab-content">
                       <div id="facts" class="tab-pane fade">
                         <h4> Summary of Facts and Submissions </h4>
-                        {% for para in facts %}
+                        {% for para in decision.FactsAndSubmissionsInParagraphs %}
                             <p> {{ para }} </p>
                         {% endfor %}
                       </div>
                       <div id="reasons" class="tab-pane fade in active">
                         <h4> Reasons for the Decision </h4>
-                        {% for para in reasons %}
+                        {% for para in decision.ReasonsInParagraphs %}
                             <p> {{ para }} </p>
                         {% endfor %}
                       </div>
                       <div id="order" class="tab-pane fade">
                         <h4> Order </h4>
-                        {% for para in order %}
+                        {% for para in decision.OrderInParagraphs %}
                             <p> {{ para }} </p>
                         {% endfor %}
+                      </div>
+                      <div id="comments" class="tab-pane fade">
+                        <h4> Comements </h4>
+                        <p> There might be comments, one day. </p>
                       </div>
                     </div>
 

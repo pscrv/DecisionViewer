@@ -93,6 +93,15 @@ class test_modules(TestCase):
         Decision.objects.filter(CaseNumber = "T 0641/00").delete()
         self.assertTrue(response)
 
+    def test_epoFacade_Search_Response(self):
+        """Tests the GetCaseFromNumber method of epoFacade"""
+
+        from .epofacade import Search_Response
+
+        response = Search_Response(partial="dg3CSNCase:T 0641/00")
+        a = response.content
+        self.assertTrue(response.ok)
+
 
 
 

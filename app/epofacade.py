@@ -5,7 +5,6 @@ import requests
 import re
 import datetime
 from bs4 import BeautifulSoup
-from .models import Decision
 
 # replace these urls by references to app.AppConstants, once their forms been properly worked out
 searchUrl = "http://www.epo.org/footer/search.html"
@@ -16,179 +15,147 @@ languageSuffixes = {"DE":"d", "EN":"e", "FR":"f"}
 
 
 #region --- methods for extracting data ---
-def SaveSingleCase(caseNumber):    
-   
-    from app.AppConstants import noPunctionTranslationTable, factFinder, reasonsFinder, orderFinder
-    from app.models import Decision
-        
-    def _parseMeta(soup, name):
-        return soup.find('meta', {'name':name})['content']
-
-    def _splitText(text, lang):
-        finder = re.compile(
-		    '^' + factFinder[lang] + '$' 
-		    + '(.*)'
-		    + '^' + reasonsFinder[lang] + '$' 
-		    + '(.*)'
-		    + '^' + orderFinder[lang] + '$'
-		    + '(.*)', 
-		    re.MULTILINE|re.DOTALL)
-        splitText = re.search(finder, text)
-        if splitText:
-            test= splitText.group(0)
-            f = splitText.group(1)
-            r = splitText.group(2)
-            o = splitText.group(3)
-        else:
-            f = "Could not parse text. All text is in the Reasons field."
-            r = text
-            o = "See Reasons."
-        return f, r, o
-
-
-    if not Decision.objects.filter(CaseNumber = caseNumber).exists():
-
-        data = GetSingleCase(caseNumber)
-
-        if data.reason == "Cannot parse this format: " + caseNumber or data.reason == "Not Found":
-            return False
-
-
-        decisionSoup = BeautifulSoup(data.content, "html.parser")
-
-        newDecision = Decision()
-        newDecision.CaseNumber = _parseMeta(decisionSoup, 'dg3CSNCase')
-        newDecision.Board = _parseMeta(decisionSoup, 'dg3DecisionBoard')
-        newDecision.Keywords = _parseMeta(decisionSoup, 'dg3KEY')
-        newDecision.Rules = _parseMeta(decisionSoup, 'dg3RuleRef')
-        newDecision.Articles = _parseMeta(decisionSoup, 'dg3ArtRef')
-        newDecision.ApplicationNumber = _parseMeta(decisionSoup, 'dg3APN')
-        newDecision.Applicant = _parseMeta(decisionSoup, 'dg3Applicant')
-        newDecision.IPC = _parseMeta(decisionSoup, 'dg3CaseIPC')
-        newDecision.Title = _parseMeta(decisionSoup, 'dg3TLE')
-        newDecision.ECLI = _parseMeta(decisionSoup, 'dg3ECLI')
-
-        ddate = _parseMeta(decisionSoup, 'dg3DecisionDate')
-        odate = _parseMeta(decisionSoup, 'dg3DecisionOnline')
-        language =  _parseMeta(decisionSoup, 'dg3DecisionLang')
-        newDecision.DecisionDate = datetime.datetime.strptime(ddate, '%d.%m.%Y')
-        newDecision.DecisionOnline = datetime.datetime.strptime(odate, '%d.%m.%Y')
-        newDecision.Language = language
-
-        textSection = decisionSoup.find(text=factFinder[newDecision.Language]).findPrevious('p').parent
-        textParagraphs = textSection.find_all('p')
-        text = "".join(para.string.strip() + '\n\n' for para in textParagraphs if not para.string.translate(noPunctionTranslationTable()).strip() == "")
-        split = _splitText(text, language)
-        newDecision.FactsAndSubmissions = split[0]
-        newDecision.Reasons = split[1]
-        newDecision.Order = split[2]
-
-        newDecision.save()
-
-        return True #new case savced
-
-    return False #case was already in the DB, was not saved     
-
-
-def CaseDataToDecision(caseNumber:str, decision:Decision):
+def CaseMetaToDecision(tag):
        
-    from app.AppConstants import noPunctionTranslationTable, factFinder, reasonsFinder, orderFinder
     from app.models import Decision
         
     def _parseMeta(soup, name):
-        return soup.find('meta', {'name':name})['content']
+        return soup.find('mt', {'n':name})['v']      
+    
+    decision = Decision()
+    decision.CaseNumber = _parseMeta(tag, 'dg3CSNCase')
+    decision.Board = _parseMeta(tag, 'dg3DecisionBoard')
+    decision.Keywords = _parseMeta(tag, 'dg3KEY')
+    decision.Rules = _parseMeta(tag, 'dg3RuleRef')
+    decision.Articles = _parseMeta(tag, 'dg3ArtRef')
+    decision.ApplicationNumber = _parseMeta(tag, 'dg3APN')
+    decision.Applicant = _parseMeta(tag, 'dg3Applicant')
+    decision.IPC = _parseMeta(tag, 'dg3CaseIPC')
+    decision.Title = _parseMeta(tag, 'dg3TLE')
+    decision.ECLI = _parseMeta(tag, 'dg3ECLI')
+    decision.Language = _parseMeta(tag, 'dg3DecisionLang')
+    decision.PDFLink = _parseMeta(tag, 'dg3DecisionPDF')
+    decision.CitedCases = _parseMeta(tag, 'dg3aDCI')
+    decision.Distribution = _parseMeta(tag, 'dg3DecisionDistributionKey')
+    decision.Opponents = _parseMeta(tag, 'dg3Opponent')
 
-    def _splitText(text, lang):
-        finder = re.compile(
-		    '^' + factFinder[lang] + '$' 
-		    + '(.*)'
-		    + '^' + reasonsFinder[lang] + '$' 
-		    + '(.*)'
-		    + '^' + orderFinder[lang] + '$'
-		    + '(.*)', 
-		    re.MULTILINE|re.DOTALL)
-        splitText = re.search(finder, text)
-        if splitText:
-            test= splitText.group(0)
-            f = splitText.group(1)
-            r = splitText.group(2)
-            o = splitText.group(3)
-        else:
-            f = "Could not parse text. All text is in the Reasons field."
-            r = text
-            o = "See Reasons."
-        return f, r, o
-
-
-    data = GetSingleCase(caseNumber)
-
-    if data.reason == "Cannot parse this format: " + caseNumber or data.reason == "Not Found":
-        return False
-
-    decisionSoup = BeautifulSoup(data.content, "html.parser")
-
-    decision.CaseNumber = _parseMeta(decisionSoup, 'dg3CSNCase')
-    decision.Board = _parseMeta(decisionSoup, 'dg3DecisionBoard')
-    decision.Keywords = _parseMeta(decisionSoup, 'dg3KEY')
-    decision.Rules = _parseMeta(decisionSoup, 'dg3RuleRef')
-    decision.Articles = _parseMeta(decisionSoup, 'dg3ArtRef')
-    decision.ApplicationNumber = _parseMeta(decisionSoup, 'dg3APN')
-    decision.Applicant = _parseMeta(decisionSoup, 'dg3Applicant')
-    decision.IPC = _parseMeta(decisionSoup, 'dg3CaseIPC')
-    decision.Title = _parseMeta(decisionSoup, 'dg3TLE')
-    decision.ECLI = _parseMeta(decisionSoup, 'dg3ECLI')
-
-    ddate = _parseMeta(decisionSoup, 'dg3DecisionDate')
-    odate = _parseMeta(decisionSoup, 'dg3DecisionOnline')
-    language =  _parseMeta(decisionSoup, 'dg3DecisionLang')
+    ddate = _parseMeta(tag, 'dg3DecisionDate')
+    odate = _parseMeta(tag, 'dg3DecisionOnline')
     decision.DecisionDate = datetime.datetime.strptime(ddate, '%d.%m.%Y')
-    decision.DecisionOnline = datetime.datetime.strptime(odate, '%d.%m.%Y')
-    decision.Language = language
+    decision.DecisionOnline = datetime.datetime.strptime(odate, '%d.%m.%Y')    
+    
+    hw = _parseMeta(tag, 'DC.title')
+    finder = re.compile(r'\((.*)\)')
+    found = re.search(finder, hw)
+    if found:
+        decision.Headword = found.group(1)
 
-    textSection = decisionSoup.find(text=factFinder[decision.Language]).findPrevious('p').parent
-    textParagraphs = textSection.find_all('p')
-    text = "".join(para.string.strip() + '\n\n' for para in textParagraphs if not para.string.translate(noPunctionTranslationTable()).strip() == "")
-    split = _splitText(text, language)
-    decision.FactsAndSubmissions = split[0]
-    decision.Reasons = split[1]
-    decision.Order = split[2]
+    decision.Link = tag.u.string
 
-    decision.save()
-
+    return decision
 #endregion
 
 
 
 
 #region --- methods for retrieval ---   
-def GetSingleCase(caseNumber):
-
-    badFormat = requests.Response()
-    badFormat.reason = "Cannot parse this format: " + caseNumber
-
-    badReturn = requests.Response()
-    badReturn.reason = "Not Found"
-    
-    finder = re.compile(r'^[DGJRTW][_ ]\d{4}/\d{2}$')
-    found = re.match(finder, caseNumber)
-    if not found:
-        return badFormat
+def GetCaseFromNumber(caseNumber:str):
         
-    response = Search_Response(partial = "dg3CSNCase:" + caseNumber, number = 1)
-    soup = BeautifulSoup(response.content, "html.parser")
-    caseTag = soup.find('u')
-
-    if not caseTag:
-        return badReturn
-
-
-    response = requests.get(caseTag.string)
-    if response.ok:
-        return response
-    else:
-        return badReturn
     
+    def _parseMeta(soup, name):
+        v = soup.find('mt', {'n':name})['v']
+        return v
 
+
+    response = Search_Response(partial = "dg3CSNCase:" + caseNumber)
+    if not response.reason == "OK":
+        return response       
+
+
+    soup = BeautifulSoup(response.text, "html.parser")
+    v = soup.find_all("mt")
+
+    #Get proceedings language
+    proceedingsLanguage = _parseMeta(soup, 'dg3DecisionPRL')
+
+    #Find a result that has the decision in this language
+    theResult = None
+    results = soup.find_all("r")
+    for res in results:
+        decisionLanguage = _parseMeta(res, 'dg3DecisionLang')
+        if decisionLanguage == proceedingsLanguage:
+            theResult = res
+            break
+
+    if not theResult:
+        theResult = results[0]  # no decision in the language of proceedings? Then take whatever is first
+
+    decision = CaseMetaToDecision(theResult)
+
+    return decision
+
+
+def GetText(decision):
+
+    from app.AppConstants import noPunctionTranslationTable, factFinder, reasonsFinder, orderFinder
+    from app.models import Decision
+
+    assert isinstance(decision, Decision)
+    if decision.Link == "":
+        return        
+
+    #region methods    
+    def _parseMeta(soup, name):
+        return soup.find('meta', {'name':name})['content']
+
+    def _splitText(text, lang):
+        finder = re.compile(
+		    '^' + factFinder[lang] + '$' 
+		    + '(.*)'
+		    + '^' + reasonsFinder[lang] + '$' 
+		    + '(.*)'
+		    + '^' + orderFinder[lang] + '$'
+		    + '(.*)', 
+		    re.MULTILINE|re.DOTALL)
+        splitText = re.search(finder, text)
+        if splitText:
+            test= splitText.group(0)
+            f = splitText.group(1)
+            r = splitText.group(2)
+            o = splitText.group(3)
+        else:
+            f = "Could not parse text. All text is in the Reasons field."
+            r = text
+            o = "See Reasons."
+        return f, r, o
+
+    def _setText(response):        
+        soup = BeautifulSoup(response.content)
+
+        textSection = soup.find(text=factFinder[decision.Language]).findPrevious('p').parent
+        textParagraphs = textSection.find_all('p')
+        text = "\n\n".join(para.string.strip() for para in textParagraphs if not para.string.translate(noPunctionTranslationTable()).strip() == "")
+        split = _splitText(text, decision.Language)
+    
+        decision.FactsAndSubmissions = split[0]
+        decision.Reasons = split[1]
+        decision.Order = split[2]
+        decision.TextDownloaded = True
+        decision.save()
+    #endregion
+
+    try:
+        response = requests.get(decision.Link)
+        _setText(response)
+
+    except Requests.ConnectionError:
+        pass
+
+    except RequestsHttpError:
+        pass
+
+    except Requests.Timeout:
+        pass
 
 
 def SearchLatest(number = 10):
@@ -248,6 +215,7 @@ def Search_Response(query = "", required = "", partial = "", language = None, st
         "lr":language,
         "start":start,
         "num":number,
+        "getfields":"*",
         "filter":"0",
         "site":"BoA",
         "client":"BoA_AJAX",
@@ -257,6 +225,6 @@ def Search_Response(query = "", required = "", partial = "", language = None, st
         "sort":"date:D:R:d1",
         }
 
-    return requests.get(searchUrl, params=payload)
-
+    r = requests.get(searchUrl, params=payload)
+    return r
 # endregion 

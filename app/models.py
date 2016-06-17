@@ -3,6 +3,7 @@ Definition of models.
 """
 
 import re
+from . import epofacade
 from datetime import datetime
 from django.db import models
 
@@ -21,6 +22,15 @@ class Decision(models.Model):
     ECLI = models.CharField(max_length = 20, default = "")
     Title = models.TextField(default = "")
     Language = models.CharField(max_length = 2, default = "")
+    Link = models.CharField(max_length = 100, default = "")
+    PDFLink = models.CharField(max_length = 100, default = "")
+    CitedCases = models.TextField(default="")
+    Distribution = models.CharField(max_length = 1, default = "D")
+    Opponents = models.CharField(max_length = 200, default = "")
+    Headword = models.CharField(max_length = 100, default = "")
+
+
+    TextDownloaded = models.BooleanField(default = False)
     FactsAndSubmissions = models.TextField(default = "")
     Reasons = models.TextField(default = "")
     Order = models.TextField(default = "")
@@ -28,16 +38,23 @@ class Decision(models.Model):
 
 
     def ReasonsInParagraphs(self):
-        return self.FormatInParagraphs(self.Reasons)
+        self._downloadText() 
+        return self.Reasons.split('\n\n')
 
     def FactsAndSubmissionsInParagraphs(self):
-        return self.FormatInParagraphs(self.FactsAndSubmissions)
+        self._downloadText() 
+        return self.FactsAndSubmissions.split('\n\n')
 
     def OrderInParagraphs(self):
-        return self.FormatInParagraphs(self.Order)
+        self._downloadText() 
+        return self.Order.split('\n\n')
 
-    def FormatInParagraphs(self, text):
-        return text.split("\n\n")
+    def OpponentsList(self):
+        return self.Opponents.split('; ')
+
+    def _downloadText(self):
+        if not self.TextDownloaded:
+            epofacade.GetText(self)
     
     def __str__(self):
         return self.CaseNumber
