@@ -18,7 +18,7 @@ def home(request):
         context_instance = RequestContext(request,
         {
             'title':'Decision Viewer',
-            'appstate':AppState,
+            'decisions':AppState.LatestDecisions,
         })
     )
 

@@ -12,37 +12,7 @@ class test_modules(TestCase):
     def setUpClass(cls):    
         super(test_modules, cls).setUpClass()
         django.setup()
-
-
-    def test_epoFacade_GetSingleCase(self):
-        """Tests epoFacade.GetSingleCase() """
         
-        from .epofacade import GetSingleCase
-
-        response = GetSingleCase("T_0604/11")
-        self.assertEqual(response.reason, "Not Found")
-
-        response = GetSingleCase("T 2273/11")
-        self.assertEqual(response.reason, "OK")
-
-        response = GetSingleCase("G 0007/88")        
-        self.assertEqual(response.reason, "OK")
-
-        response = GetSingleCase("D 0004/10")     
-        self.assertEqual(response.reason, "OK")
-        
-        response = GetSingleCase("J 0035/92")     
-        self.assertEqual(response.reason, "OK")
-        
-        response = GetSingleCase("W 0001/09")     
-        self.assertEqual(response.reason, "OK")
-        
-        response = GetSingleCase("R 0017/11")     
-        self.assertEqual(response.reason, "OK")
-                
-        response = GetSingleCase("R 0017/11")     
-        self.assertEqual(response.reason, "OK")
-
     def test_epoFacade_SearchByDate(self):
         """Tests the SearchByDate method in epoFacade"""
 
@@ -94,13 +64,21 @@ class test_modules(TestCase):
         self.assertTrue(response)
 
     def test_epoFacade_Search_Response(self):
-        """Tests the GetCaseFromNumber method of epoFacade"""
+        """Tests the Search_response method of epoFacade"""
 
         from .epofacade import Search_Response
 
         response = Search_Response(partial="dg3CSNCase:T 0641/00")
-        a = response.content
         self.assertTrue(response.ok)
+
+    def test_epoFacade_GetCaseFromNumber(self):        
+        """Tests the GetCaseFromNumber method of epoFacade"""
+        
+        from .epofacade import GetCaseFromNumber
+
+        response = GetCaseFromNumber("T 2054/12")
+        assert(response.CaseNumber == "T 2054/12")
+
 
 
 

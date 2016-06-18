@@ -4,9 +4,10 @@
 
             <h3> The latest ten decisions </h3>
 	    
-            {% for dec in appstate.LatestDecisions %}
+            {% for dec in decisions %}
             <a href="{% url 'decision_details' pk=dec.pk %}">
                 <div class="row">
+                    <hr />
                     <div class="col-sm-2">
 		                {{ dec.CaseNumber }}
                     </div>
@@ -16,7 +17,6 @@
                     <div class="col-sm-4">
                         {{ dec.Title }}
                     </div>
-                    <hr />
                 </div>
             </a>
             {% endfor %}

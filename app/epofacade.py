@@ -4,6 +4,7 @@ Interface methods for querying EPO databases
 import requests
 import re
 import datetime
+import string
 from bs4 import BeautifulSoup
 
 # replace these urls by references to app.AppConstants, once their forms been properly worked out
@@ -31,13 +32,13 @@ def CaseMetaToDecision(tag):
     decision.ApplicationNumber = _parseMeta(tag, 'dg3APN')
     decision.Applicant = _parseMeta(tag, 'dg3Applicant')
     decision.IPC = _parseMeta(tag, 'dg3CaseIPC')
-    decision.Title = _parseMeta(tag, 'dg3TLE')
+    decision.Title = _parseMeta(tag, 'dg3TLE').capitalize()
     decision.ECLI = _parseMeta(tag, 'dg3ECLI')
     decision.Language = _parseMeta(tag, 'dg3DecisionLang')
     decision.PDFLink = _parseMeta(tag, 'dg3DecisionPDF')
     decision.CitedCases = _parseMeta(tag, 'dg3aDCI')
     decision.Distribution = _parseMeta(tag, 'dg3DecisionDistributionKey')
-    decision.Opponents = _parseMeta(tag, 'dg3Opponent')
+    decision.Opponents = _parseMeta(tag, 'dg3Opponent').strip(string.punctuation + string.whitespace)
 
     ddate = _parseMeta(tag, 'dg3DecisionDate')
     odate = _parseMeta(tag, 'dg3DecisionOnline')
@@ -51,6 +52,7 @@ def CaseMetaToDecision(tag):
         decision.Headword = found.group(1)
 
     decision.Link = tag.u.string
+
 
     return decision
 #endregion
