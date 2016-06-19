@@ -2,16 +2,20 @@
 Definition of views.
 """
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpRequest
 from django.template import RequestContext
 from datetime import datetime
 from .models import Decision
 from .AppState import AppState
+from . import epofacade
 
 def home(request):
     """Renders the home page."""
     assert isinstance(request, HttpRequest)
+
+
+
     return render(
         request,
         'app/index.html',
@@ -19,6 +23,8 @@ def home(request):
         {
             'title':'Decision Viewer',
             'decisions':AppState.LatestDecisions,
+            'year':AppState.Year,
+            'dbsize':AppState.DBSize
         })
     )
 
@@ -40,6 +46,40 @@ def decision_details(request, pk):
 	        'decision':decision,
         })
         )
+
+
+def search_caseNumber(request):
+    """Searches for a case by case number """
+    """If not in the DB, then the search will extend the the EPO website"""
+    
+    if not request.method == 'POST':
+        return redirect(request.META['HTTP_REFERER'])
+
+    query = request.POST.get('q', None)
+    results = Decision.objects.filter(CaseNumber=query)
+    if results:
+        # Yay, found it in our DB
+        return redirect('decision_details', pk = results[0].pk)
+    else:
+        # Boo, not in our DB yet
+        newDecision = epofacade.GetCaseFromNumber(query)
+        if newDecision:
+            # Yes, got it from the EPO site
+            newDecision.save()
+            return redirect('decision_details', pk = newDecision.pk)
+        else:
+            # More boo, even EPO does not have it :-(
+            return redirect(request.META['HTTP_REFERER'])
+
+
+
+
+
+
+
+
+
+
 
 
 

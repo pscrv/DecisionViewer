@@ -61,8 +61,7 @@ def CaseMetaToDecision(tag):
 
 
 #region --- methods for retrieval ---   
-def GetCaseFromNumber(caseNumber:str):
-        
+def GetCaseFromNumber(caseNumber:str):        
     
     def _parseMeta(soup, name):
         v = soup.find('mt', {'n':name})['v']
@@ -71,7 +70,7 @@ def GetCaseFromNumber(caseNumber:str):
 
     response = Search_Response(partial = "dg3CSNCase:" + caseNumber)
     if not response.reason == "OK":
-        return response       
+        return None       
 
 
     soup = BeautifulSoup(response.text, "html.parser")

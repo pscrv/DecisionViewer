@@ -10,6 +10,7 @@ from . import views
 urlpatterns = [
 	url(r'^$', 'app.views.home', name='home'),
 	url(r'^decision_details/(?P<pk>.+)/$', views.decision_details, name='decision_details'),
+    url(r'^seach_caseNumber$', views.search_caseNumber, name='search_caseNumber'),
 	url(r'^contact$', 'app.views.contact', name='contact'),
 	url(r'^about', 'app.views.about', name='about'),
 	url(r'^login/$',

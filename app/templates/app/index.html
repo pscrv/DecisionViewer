@@ -2,6 +2,9 @@
 
 {% block content %}
 
+        
+    <div class="col-sm-8">
+
             <h3> The latest ten decisions </h3>
 	    
             {% for dec in decisions %}
@@ -20,6 +23,17 @@
                 </div>
             </a>
             {% endfor %}
+    </div>
+
+    <div class="col-sm-4">
+        <div class="row">
+            <form method="POST" action="{% url 'search_caseNumber' %}" class="post-form">
+                {% csrf_token %}
+                <input name="q" placeholder="Case number" class="searchfield" type="text" id="searchbox">
+                <button type="submit" class="search btn btn-default">Search</button>
+            </form>
+        </div>
+    </div>
 
 
 {% endblock %}
