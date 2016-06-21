@@ -13,6 +13,10 @@ singleDecisionUrl = "http://www.epo.org/law-practice/case-law-appeals/recent/"
 
 languageList = ["DE", "EN", "FR"]
 languageSuffixes = {"DE":"d", "EN":"e", "FR":"f"}
+    
+def _parseMeta(soup, name):
+    v = soup.find('mt', {'n':name})['v'].strip(string.punctuation + string.whitespace)
+    return v
 
 
 #region --- methods for extracting data ---
@@ -24,6 +28,18 @@ def CaseMetaToDecision(tag):
         return soup.find('mt', {'n':name})['v']      
     
     decision = Decision()
+    CopyFromMeta(tag, decision)
+
+    return decision
+
+
+def CopyFromMeta(tag, decision):
+       
+    from app.models import Decision
+        
+    def _parseMeta(soup, name):
+        return soup.find('mt', {'n':name})['v']
+
     decision.CaseNumber = _parseMeta(tag, 'dg3CSNCase')
     decision.Board = _parseMeta(tag, 'dg3DecisionBoard')
     decision.Keywords = _parseMeta(tag, 'dg3KEY')
@@ -38,7 +54,7 @@ def CaseMetaToDecision(tag):
     decision.PDFLink = _parseMeta(tag, 'dg3DecisionPDF')
     decision.CitedCases = _parseMeta(tag, 'dg3aDCI')
     decision.Distribution = _parseMeta(tag, 'dg3DecisionDistributionKey')
-    decision.Opponents = _parseMeta(tag, 'dg3Opponent').strip(string.punctuation + string.whitespace)
+    decision.Opponents = _parseMeta(tag, 'dg3Opponent')
 
     ddate = _parseMeta(tag, 'dg3DecisionDate')
     odate = _parseMeta(tag, 'dg3DecisionOnline')
@@ -53,7 +69,6 @@ def CaseMetaToDecision(tag):
 
     decision.Link = tag.u.string
 
-
     return decision
 #endregion
 
@@ -61,12 +76,9 @@ def CaseMetaToDecision(tag):
 
 
 #region --- methods for retrieval ---   
-def GetCaseFromNumber(caseNumber:str):        
+def GetCaseFromNumber(caseNumber:str):       
     
-    def _parseMeta(soup, name):
-        v = soup.find('mt', {'n':name})['v']
-        return v
-
+    from app.models import Decision 
 
     response = Search_Response(partial = "dg3CSNCase:" + caseNumber)
     if not response.reason == "OK":
@@ -91,17 +103,64 @@ def GetCaseFromNumber(caseNumber:str):
     if not theResult:
         theResult = results[0]  # no decision in the language of proceedings? Then take whatever is first
 
-    decision = CaseMetaToDecision(theResult)
+
+
+    # If there is already a case with this caseNumber
+    # copy the meta to it.
+    # If not, make a new one.
+    
+    decision, created = Decision.objects.get_or_create(CaseNumber = caseNumber)            
+    decision = CopyFromMeta(theResult, decision)
 
     return decision
+
+
+def GetMeta(decision, caseNumber = ""):
+    """
+    Fills in metadata from the epo site
+    Requires either a caseNumber argument or a value for decision.CaseNumber
+    The parameter caseNumber is ignored, if decision.CaseNumber exists
+    """
+
+    if not decision.CaseNumber:
+        if caseNumber:
+            decision.CaseNumber = caseNumber
+        else:
+            return
+
+
+    response = Search_Response(partial = "dg3CSNCase:" + decision.CaseNumber)
+    if not response.reason == "OK":
+        return      
+
+
+    soup = BeautifulSoup(response.text, "html.parser")
+    v = soup.find_all("mt")
+
+    #Get proceedings language
+    proceedingsLanguage = _parseMeta(soup, 'dg3DecisionPRL')
+
+    #Find a result that has the decision in this language
+    theResult = None
+    results = soup.find_all("r")
+    for res in results:
+        decisionLanguage = _parseMeta(res, 'dg3DecisionLang')
+        if decisionLanguage == proceedingsLanguage:
+            theResult = res
+            break
+
+    if not theResult:
+        theResult = results[0]  # no decision in the language of proceedings? Then take whatever is first
+         
+    CopyFromMeta(theResult, decision)
+    decision.MetaDownloaded = True
+    decision.save()
 
 
 def GetText(decision):
 
     from app.AppConstants import noPunctionTranslationTable, factFinder, reasonsFinder, orderFinder
-    from app.models import Decision
 
-    assert isinstance(decision, Decision)
     if decision.Link == "":
         return        
 
@@ -133,7 +192,9 @@ def GetText(decision):
     def _setText(response):        
         soup = BeautifulSoup(response.content)
 
-        textSection = soup.find(text=factFinder[decision.Language]).findPrevious('p').parent
+        textSection = soup.find('div', {'id':'body'})
+        if not textSection:
+            return
         textParagraphs = textSection.find_all('p')
         text = "\n\n".join(para.string.strip() for para in textParagraphs if not para.string.translate(noPunctionTranslationTable()).strip() == "")
         split = _splitText(text, decision.Language)

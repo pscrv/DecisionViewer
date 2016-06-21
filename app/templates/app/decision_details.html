@@ -20,10 +20,11 @@
                     {% if decision.Rules %} <p class="articles+rules"> Rules {{ decision.Rules }} </p> {% endif %}
                     <p class="keywords"> {{ decision.Keywords }} </p>
 
-                    {% if decision.CitedCases %} 
-                        <p class="citeddecisions"> 
-                            Cited decisions: {{ decision.CitedCases }}
-                        </p> 
+                    {% if citedDecisions %}
+                            Cited decisions: 
+                            {% for cited in citedDecisions %}
+                                <a href="{% url 'decision_details' pk=cited.pk %}"> {{ cited.CaseNumber }}   </a>
+                            {% endfor %}                      
                     {% endif %}
                 </div>
 

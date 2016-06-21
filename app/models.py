@@ -9,6 +9,8 @@ from django.db import models
 
 class Decision(models.Model):
     CaseNumber = models.CharField(max_length = 16, default = "")
+
+    MetaDownloaded = models.BooleanField(default = False)
     Board = models.CharField(max_length = 16, default = "")
     DecisionDate = models.DateField(blank=True, null=True)
     OnlineDate = models.DateField(blank=True, null=True)
@@ -16,7 +18,7 @@ class Decision(models.Model):
     Keywords = models.TextField(default = "")
     Rules = models.TextField(default = "")
     Articles = models.TextField(default = "")
-    ApplicationNumber = models.IntegerField(default = 0)
+    ApplicationNumber = models.CharField(max_length = 15, default = "")
     Applicant = models.CharField(max_length = 50, default = "")
     IPC = models.CharField(max_length = 50, default = "")
     ECLI = models.CharField(max_length = 20, default = "")
@@ -38,23 +40,26 @@ class Decision(models.Model):
 
 
     def ReasonsInParagraphs(self):
-        self._downloadText() 
         return self.Reasons.split('\n\n')
 
     def FactsAndSubmissionsInParagraphs(self):
-        self._downloadText() 
         return self.FactsAndSubmissions.split('\n\n')
 
     def OrderInParagraphs(self):
-        self._downloadText() 
         return self.Order.split('\n\n')
 
     def OpponentsList(self):
         return self.Opponents.split('; ')
 
-    def _downloadText(self):
-        if not self.TextDownloaded:
+    def CitedCases_List(self):
+        return self.CitedCases.split(',')
+
+    def FillData(self, forcedownload = False):
+        if forcedownload or not self.MetaDownloaded:
+            epofacade.GetMeta(self)
+        if forcedownload or not self.TextDownloaded:
             epofacade.GetText(self)
+
     
     def __str__(self):
         return self.CaseNumber

@@ -34,8 +34,18 @@ def decision_details(request, pk):
 
     try:
         decision = get_object_or_404(Decision.objects, pk = pk)
+        decision.FillData()
+        citedDecisions = []
+        for case in decision.CitedCases_List():
+            dec, created = Decision.objects.get_or_create(CaseNumber = case)
+            if created:
+                dec.CaseNumber = case
+                dec.save()
+            citedDecisions.append(dec)
+
     except Decision.DoesNotExist:
-        pass
+        # What are we doing here? Where did we get the pk?
+        return redirect(request.META['HTTP_REFERER'])
 
     return render(
         request,
@@ -44,6 +54,7 @@ def decision_details(request, pk):
         { 
             'appstate':AppState,
 	        'decision':decision,
+            'citedDecisions':citedDecisions,
         })
         )
 
@@ -55,6 +66,7 @@ def search_caseNumber(request):
     if not request.method == 'POST':
         return redirect(request.META['HTTP_REFERER'])
 
+        
     query = request.POST.get('q', None)
     results = Decision.objects.filter(CaseNumber=query)
     if results:
@@ -70,17 +82,7 @@ def search_caseNumber(request):
         else:
             # More boo, even EPO does not have it :-(
             return redirect(request.META['HTTP_REFERER'])
-
-
-
-
-
-
-
-
-
-
-
+        
 
 
 def contact(request):
