@@ -6,7 +6,6 @@ from datetime import datetime
 from django.conf.urls import patterns, url, include
 from app.forms import BootstrapAuthenticationForm
 from . import views
-import django.contrib
 
 urlpatterns = [
 	url(r'^$', views.home, name='home'),
@@ -15,7 +14,7 @@ urlpatterns = [
 	url(r'^contact$', views.contact, name='contact'),
 	url(r'^about', views.about, name='about'),
 	url(r'^login/$',
-		django.contrib.auth.views.login,
+		'django.contrib.auth.views.login',
 		{
 			'template_name': 'app/login.html',
 			'authentication_form': BootstrapAuthenticationForm,
