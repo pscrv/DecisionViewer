@@ -4,6 +4,7 @@ Definition of urls for the Decisions Viewer app.
 
 from datetime import datetime
 from django.conf.urls import patterns, url, include
+from django.contrib.auth.views import login, logout
 from app.forms import BootstrapAuthenticationForm
 from . import views
 
@@ -14,7 +15,7 @@ urlpatterns = [
 	url(r'^contact$', views.contact, name='contact'),
 	url(r'^about', views.about, name='about'),
 	url(r'^login/$',
-		'django.contrib.auth.views.login',
+		login,
 		{
 			'template_name': 'app/login.html',
 			'authentication_form': BootstrapAuthenticationForm,
@@ -26,7 +27,7 @@ urlpatterns = [
 		},
 		name='login'),
 	url(r'^logout$',
-		'django.contrib.auth.views.logout',
+		logout,
 		{
 			'next_page': '/',		},
 		name='logout'),
