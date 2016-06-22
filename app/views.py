@@ -19,13 +19,12 @@ def home(request):
     return render(
         request,
         'app/index.html',
-        context_instance = RequestContext(request,
         {
             'title':'Decision Viewer',
             'decisions':AppState.LatestDecisions,
             'year':AppState.Year,
             'dbsize':AppState.DBSize
-        })
+        }
     )
 
 def decision_details(request, pk):
@@ -43,6 +42,7 @@ def decision_details(request, pk):
                 dec.save()
             citedDecisions.append(dec)
 
+
     except Decision.DoesNotExist:
         # What are we doing here? Where did we get the pk?
         return redirect(request.META['HTTP_REFERER'])
@@ -50,12 +50,11 @@ def decision_details(request, pk):
     return render(
         request,
         'app/decision_details.html',
-        context_instance = RequestContext(request, 
         { 
             'appstate':AppState,
 	        'decision':decision,
             'citedDecisions':citedDecisions,
-        })
+        }
         )
 
 

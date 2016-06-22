@@ -50,7 +50,8 @@ def CopyFromMeta(tag, decision):
     decision.IPC = _parseMeta(tag, 'dg3CaseIPC')
     decision.Title = _parseMeta(tag, 'dg3TLE').capitalize()
     decision.ECLI = _parseMeta(tag, 'dg3ECLI')
-    decision.Language = _parseMeta(tag, 'dg3DecisionLang')
+    decision.ProcedureLanguage = _parseMeta(tag, 'dg3DecisionPRL')
+    decision.DecisionLanguage = _parseMeta(tag, 'dg3DecisionLang')
     decision.PDFLink = _parseMeta(tag, 'dg3DecisionPDF')
     decision.CitedCases = _parseMeta(tag, 'dg3aDCI')
     decision.Distribution = _parseMeta(tag, 'dg3DecisionDistributionKey')
@@ -197,12 +198,81 @@ def GetText(decision):
             return
         textParagraphs = textSection.find_all('p')
         text = "\n\n".join(para.string.strip() for para in textParagraphs if not para.string.translate(noPunctionTranslationTable()).strip() == "")
-        split = _splitText(text, decision.Language)
+        split = _splitText(text, decision.DecisionLanguage)
     
         decision.FactsAndSubmissions = split[0]
         decision.Reasons = split[1]
         decision.Order = split[2]
         decision.TextDownloaded = True
+        decision.save()
+    #endregion
+
+    try:
+        response = requests.get(decision.Link)
+        _setText(response)
+
+    except Requests.ConnectionError:
+        pass
+
+    except RequestsHttpError:
+        pass
+
+    except Requests.Timeout:
+        pass
+
+
+# a new attempt at GetText
+def GetText_2(decision):
+
+    from app.AppConstants import noPunctionTranslationTable, factFinder, reasonsFinder, orderFinder
+
+    if decision.Link == "":
+        return        
+
+    #region methods    
+    def _parseMeta(soup, name):
+        return soup.find('meta', {'name':name})['content']
+
+    def _parasToString(paraList):        
+        text = "\n\n".join(para.string.strip() for para in paraList if not para.string.translate(noPunctionTranslationTable()).strip() == "")
+
+    def _setText(response):        
+        soup = BeautifulSoup(response.content)
+
+        textSection = soup.find('div', {'id':'body'})
+        if not textSection:
+            return
+
+        # Now, textSection is a <div/> that contains the facts, reaons, order, 
+        # or whatever they are called in our decision.
+        # Try to find the secions by looking for <b> tags
+
+        headers = textSection.find_all('b')
+        if not len(headers) == 3:
+            decision.FactsAndSubmissions = "See Reasons"
+            decision.Reasons = _parasToString(textSection.find_all('p'))
+            decision.Order = "See Reasons"
+            decision.TextDownloaded = True
+            decision.HasSplitText = False
+            decision.save()
+            
+        
+        def loopToHeader(textList, para):
+            while not para == Null:
+                textList.append(para.string)
+                para = para.nextSibling
+                if para.next.name == 'b':
+                    return textList
+
+        facts = loopToHeader([], headers[0].nextSibling)
+        reasons = loopToHeader([], headers[1].nextSibling)
+        order = loopToHeader([], headers[2].nextSibling)
+
+        decision.FactsAndSubmissions = _parasToString(facts)
+        decision.Reasons = _parasToString(reasons)
+        decision.Order = _parasToString(order)
+        decision.TextDownloaded = True
+        decision.HasSplitText = True
         decision.save()
     #endregion
 

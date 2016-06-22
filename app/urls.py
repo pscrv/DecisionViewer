@@ -29,7 +29,8 @@ urlpatterns = [
 	url(r'^logout$',
 		logout,
 		{
-			'next_page': '/',		},
+			'next_page': '/',		
+        },
 		name='logout'),
 	]
 
