@@ -15,17 +15,22 @@ languageList = ["DE", "EN", "FR"]
 languageSuffixes = {"DE":"d", "EN":"e", "FR":"f"}
     
 def _parseMeta(soup, name):
-    v = soup.find('mt', {'n':name})['v'].strip(string.punctuation + string.whitespace)
-    return v
+    tag = soup.find('mt', {'n':name})
+    if not tag:
+        return ""
+
+    v = tag['v'].strip(string.whitespace)
+    w = v.strip(string.punctuation + string.whitespace)
+    if w == "":
+        return w
+    else:
+        return v
 
 
 #region --- methods for extracting data ---
 def CaseMetaToDecision(tag):
        
-    from app.models import Decision
-        
-    def _parseMeta(soup, name):
-        return soup.find('mt', {'n':name})['v']      
+    from app.models import Decision  
     
     decision = Decision()
     CopyFromMeta(tag, decision)
@@ -36,9 +41,6 @@ def CaseMetaToDecision(tag):
 def CopyFromMeta(tag, decision):
        
     from app.models import Decision
-        
-    def _parseMeta(soup, name):
-        return soup.find('mt', {'n':name})['v']
 
     decision.CaseNumber = _parseMeta(tag, 'dg3CSNCase')
     decision.Board = _parseMeta(tag, 'dg3DecisionBoard')
@@ -88,6 +90,8 @@ def GetCaseFromNumber(caseNumber:str):
 
     soup = BeautifulSoup(response.text, "html.parser")
     v = soup.find_all("mt")
+    if not v:
+        return None
 
     #Get proceedings language
     proceedingsLanguage = _parseMeta(soup, 'dg3DecisionPRL')
@@ -191,7 +195,7 @@ def GetText(decision):
         return f, r, o
 
     def _setText(response):        
-        soup = BeautifulSoup(response.content)
+        soup = BeautifulSoup(response.content, "html.parser")
 
         textSection = soup.find('div', {'id':'body'})
         if not textSection:
@@ -237,7 +241,7 @@ def GetText_2(decision):
         text = "\n\n".join(para.string.strip() for para in paraList if not para.string.translate(noPunctionTranslationTable()).strip() == "")
 
     def _setText(response):        
-        soup = BeautifulSoup(response.content)
+        soup = BeautifulSoup(response.content, "html.parser")
 
         textSection = soup.find('div', {'id':'body'})
         if not textSection:

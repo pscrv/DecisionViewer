@@ -29,7 +29,6 @@ class AppState(object):
                 newDecision = GetCaseFromNumber(case)
                 newDecision.save()
                 cls._latestDecisions.append(newDecision)
-                
 
 
     @ClassProperty
