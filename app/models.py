@@ -84,7 +84,7 @@ class Decision(models.Model):
         if forcedownload or not self.MetaDownloaded:
             epofacade.GetMeta(self)
         if forcedownload or not self.TextDownloaded:
-            epofacade.GetText(self)
+            epofacade.GetText_2(self)
 
     
     def __str__(self):

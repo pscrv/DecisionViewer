@@ -5,7 +5,7 @@ import requests
 import re
 import datetime
 import string
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, element
 
 # replace these urls by references to app.AppConstants, once their forms been properly worked out
 searchUrl = "http://www.epo.org/footer/search.html"
@@ -238,7 +238,10 @@ def GetText_2(decision):
         return soup.find('meta', {'name':name})['content']
 
     def _parasToString(paraList):        
-        text = "\n\n".join(para.string.strip() for para in paraList if not para.string.translate(noPunctionTranslationTable()).strip() == "")
+        #text = "\n\n".join(para.string.strip() for para in paraList if not para.string.translate(noPunctionTranslationTable()).strip() == "")        
+        text = "\n\n".join(para.string.strip() for para in paraList if not para.string.strip(string.whitespace + string.punctuation) == "")
+        return text
+        
 
     def _setText(response):        
         soup = BeautifulSoup(response.content, "html.parser")
@@ -246,6 +249,15 @@ def GetText_2(decision):
         textSection = soup.find('div', {'id':'body'})
         if not textSection:
             return
+
+        # strip out all tags other than <p>
+        for tag in textSection.children:
+            if isinstance(tag, element.Tag):
+                if not tag.name == 'p':
+                    tag.decompose()
+            elif tag.string == '\n':
+                del tag
+
 
         # Now, textSection is a <div/> that contains the facts, reaons, order, 
         # or whatever they are called in our decision.
@@ -262,15 +274,26 @@ def GetText_2(decision):
             
         
         def loopToHeader(textList, para):
-            while not para == Null:
-                textList.append(para.string)
+            while para:
+                textList.append(para)
                 para = para.nextSibling
-                if para.next.name == 'b':
-                    return textList
+                if para:
+                    nextSib = para.nextSibling
+                    if nextSib.find('b'):    
+                        textList.append(para)                    
+                        return textList
+                    else:
+                        pass # there is still at least one <p>
+                else:
+                    return textList # we have just dealt with the last <p>
 
-        facts = loopToHeader([], headers[0].nextSibling)
-        reasons = loopToHeader([], headers[1].nextSibling)
-        order = loopToHeader([], headers[2].nextSibling)
+
+        factsHeader = headers[0].string
+        facts = loopToHeader([], headers[0].parent.nextSibling)
+        reasonsHeader = headers[1].string
+        reasons = loopToHeader([], headers[1].parent.nextSibling)
+        orderHeader = headers[2].string
+        order = loopToHeader([], headers[2].parent.nextSibling)
 
         decision.FactsAndSubmissions = _parasToString(facts)
         decision.Reasons = _parasToString(reasons)
