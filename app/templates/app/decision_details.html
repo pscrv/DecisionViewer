@@ -23,7 +23,7 @@
                     {% if citedDecisions %}
                             Cited decisions: 
                             {% for cited in citedDecisions %}
-                                <a href="{% url 'decision_details' pk=cited.pk %}"> {{ cited.CaseNumber }}   </a>
+                                <a href="{% url 'decision_details' cn=cited.CaseNumber %}"> {{ cited.CaseNumber }}   </a>
                             {% endfor %}                      
                     {% endif %}
                 </div>
@@ -32,33 +32,33 @@
 
                 <div class="col-sm-8">
                     <ul class="nav nav-tabs">
-                      <li><a data-toggle="tab" href="#facts">Facts</a></li>
+                      <li><a data-toggle="tab" href="#procedure">Procedure</a></li>
                       <li class="active"><a data-toggle="tab" href="#reasons">Reasons</a></li>
-                      <li><a data-toggle="tab" href="#order">Order</a></li>
+                      <li><a data-toggle="tab" href="#outcome">Outcome</a></li>
                       <li><a data-toggle="tab" href="#comments">Comments</a></li>
                     </ul>
 
                     <div class="tab-content">
-                      <div id="facts" class="tab-pane fade">
-                        <h4> Summary of Facts and Submissions </h4>
-                        {% for para in decision.FactsAndSubmissionsInParagraphs %}
+                      <div id="procedure" class="tab-pane fade">
+                        <h4> {{ decision.FactsHeader }} </h4>
+                        {% for para in facts %}
                             <p> {{ para }} </p>
                         {% endfor %}
                       </div>
                       <div id="reasons" class="tab-pane fade in active">
-                        <h4> Reasons for the Decision </h4>
-                        {% for para in decision.ReasonsInParagraphs %}
+                        <h4> {{ decision.ReasonsHeader }} </h4>
+                        {% for para in reasons %}
                             <p> {{ para }} </p>
                         {% endfor %}
                       </div>
-                      <div id="order" class="tab-pane fade">
-                        <h4> Order </h4>
-                        {% for para in decision.OrderInParagraphs %}
+                      <div id="outcome" class="tab-pane fade">
+                        <h4> {{ decision.OrderHeader }} </h4>
+                        {% for para in order %}
                             <p> {{ para }} </p>
                         {% endfor %}
                       </div>
                       <div id="comments" class="tab-pane fade">
-                        <h4> Comements </h4>
+                        <h4> Comments </h4>
                         <p> There might be comments, one day. </p>
                       </div>
                     </div>

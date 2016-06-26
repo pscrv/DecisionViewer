@@ -1,7 +1,10 @@
 import datetime
 from .ClassProperty import ClassProperty
-from .epofacade import SearchLatest, GetCaseFromNumber
 from .models import Decision
+from . import epoSearch, epoConverter
+
+#from .epofacade import SearchLatest, GetCaseFromNumber
+
 
 class AppState(object):
     """class to hold app state"""
@@ -9,14 +12,30 @@ class AppState(object):
     _latestDecisions = []
     _latestCaseList = []
     _lastGetLatest = datetime.date.min
+    _lastestFromEPO = False
 
     @classmethod
     def __update_latest__(cls, forceUpdate:bool = True):
 
+        cls._latestCaseList = Decision.objects.order_by('OnlineDate')[:10]
+
         if not forceUpdate and cls._lastGetLatest == datetime.date.today():
             return
                 
-        cls._latestCaseList =  SearchLatest()
+
+
+        try:
+            response = epoSearch.searchLatest()
+            epoLatest = epoConverter.toDecisionList()
+            cls._latestFromEPO = True
+        except:
+            epoLatest = []
+            cls._latestFromEPO = False
+
+
+
+        if epoLatest:
+            cls._latestCaseList =  epoLatest
         cls._lastGetLatest = datetime.date.today()
 
         cls._latestDecisions = []
@@ -36,6 +55,11 @@ class AppState(object):
     def LatestDecisions(cls):
         cls.__update_latest__(forceUpdate=False)
         return cls._latestDecisions
+    
+    @ClassProperty
+    @classmethod
+    def LatestFromEPO(cls):
+        return cls._latestFromEPO
 
     @ClassProperty
     @classmethod
@@ -54,13 +78,20 @@ class AppState(object):
 
 
 
+    
+    @classmethod
+    def Count(cls, type='', withmeta=False, withtext=False):
+        if withmeta:
+            if withtext:
+                return Decision.objects.filter(CaseNumber__startswith=type, MetaDownloaded='True', TextDownloaded='True').count()
+            else:
+                return Decision.objects.filter(CaseNumber__startswith=type, MetaDownloaded='True').count()
+        else:
+            if withtext:
+                return Decision.objects.filter(CaseNumber__startswith=type, TextDownloaded='True').count()
+            else:
+                return Decision.objects.filter(CaseNumber__startswith=type).count()
 
 
-
-
-
-
-
-
-
-
+    
+   

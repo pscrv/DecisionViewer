@@ -8,13 +8,11 @@ from django.template import RequestContext
 from datetime import datetime
 from .models import Decision
 from .AppState import AppState
-from . import epofacade
+from . import epoSearch, epoConverter, decisionFiller
 
 def home(request):
     """Renders the home page."""
     assert isinstance(request, HttpRequest)
-
-
 
     return render(
         request,
@@ -23,38 +21,42 @@ def home(request):
             'title':'Decision Viewer',
             'decisions':AppState.LatestDecisions,
             'year':AppState.Year,
-            'dbsize':AppState.DBSize
+            'dbsize':AppState.DBSize,
+            'epoContact':AppState.LatestFromEPO
         }
     )
 
-def decision_details(request, pk):
+def decision_details(request, cn):
     """Renders the decision_details page."""
     assert isinstance(request, HttpRequest)
 
     try:
-        decision = get_object_or_404(Decision.objects, pk = pk)
-        decision.FillData()
+        decision = get_object_or_404(Decision.objects, CaseNumber = cn)
+        decision = decisionFiller.get_text(decision.CaseNumber, decision.DecisionLanguage)
+
         citedDecisions = []
-        for case in decision.CitedCases_List():
-            dec, created = Decision.objects.get_or_create(CaseNumber = case)
-            if created:
-                dec.CaseNumber = case
-                dec.save()
-            citedDecisions.append(dec)
+        if not decision.CitedCases == "":
+            for case in decision.CitedCases.split(','):
+                response = epoSearch.searchCaseNumber(case.strip())
+                dec = epoConverter.metaToDecision(response)
+                citedDecisions.append(dec)
+
 
 
     except Decision.DoesNotExist:
-        # What are we doing here? Where did we get the pk?
         return redirect(request.META['HTTP_REFERER'])
 
     return render(
         request,
-        'app/decision_details.html',
-        { 
+        'app/decision_details.html', 
+            { 
             'appstate':AppState,
 	        'decision':decision,
             'citedDecisions':citedDecisions,
-        }
+            'facts':decision.Facts.split('\n\n'),
+            'reasons':decision.Reasons.split('\n\n'),
+            'order':decision.Order.split('\n\n'),
+            }
         )
 
 
@@ -105,7 +107,21 @@ def about(request):
         'app/about.html',
         {
             'title':'About',
-            'message':'Your application description page.',
             'year':datetime.now().year,
+            'GCount':AppState.Count('G'),
+            'GCountMeta':AppState.Count('G', withmeta=True),
+            'GCountText':AppState.Count('G', withtext=True),
+            'RCount':AppState.Count('R'),
+            'RCountMeta':AppState.Count('R', withmeta=True),
+            'RCountText':AppState.Count('R', withtext=True),
+            'JCount':AppState.Count('J'),
+            'JCountMeta':AppState.Count('J', withmeta=True),
+            'JCountText':AppState.Count('J', withtext=True),
+            'TCount':AppState.Count('T'),
+            'TCountMeta':AppState.Count('T', withmeta=True),
+            'TCountText':AppState.Count('T', withtext=True),
+            'TotalCount':AppState.Count(),
+            'TotalCountMeta':AppState.Count(withmeta=True),
+            'TotalCountText':AppState.Count(withtext=True),
         }
     )

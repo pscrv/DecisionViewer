@@ -41,37 +41,45 @@ def CaseMetaToDecision(tag):
 def CopyFromMeta(tag, decision):
        
     from app.models import Decision
-
     decision.CaseNumber = _parseMeta(tag, 'dg3CSNCase')
-    decision.Board = _parseMeta(tag, 'dg3DecisionBoard')
-    decision.Keywords = _parseMeta(tag, 'dg3KEY')
-    decision.Rules = _parseMeta(tag, 'dg3RuleRef')
-    decision.Articles = _parseMeta(tag, 'dg3ArtRef')
-    decision.ApplicationNumber = _parseMeta(tag, 'dg3APN')
-    decision.Applicant = _parseMeta(tag, 'dg3Applicant')
-    decision.IPC = _parseMeta(tag, 'dg3CaseIPC')
-    decision.Title = _parseMeta(tag, 'dg3TLE').capitalize()
-    decision.ECLI = _parseMeta(tag, 'dg3ECLI')
-    decision.ProcedureLanguage = _parseMeta(tag, 'dg3DecisionPRL')
-    decision.DecisionLanguage = _parseMeta(tag, 'dg3DecisionLang')
-    decision.PDFLink = _parseMeta(tag, 'dg3DecisionPDF')
-    decision.CitedCases = _parseMeta(tag, 'dg3aDCI')
-    decision.Distribution = _parseMeta(tag, 'dg3DecisionDistributionKey')
-    decision.Opponents = _parseMeta(tag, 'dg3Opponent')
 
     ddate = _parseMeta(tag, 'dg3DecisionDate')
     odate = _parseMeta(tag, 'dg3DecisionOnline')
     decision.DecisionDate = datetime.datetime.strptime(ddate, '%d.%m.%Y')
     decision.DecisionOnline = datetime.datetime.strptime(odate, '%d.%m.%Y')    
     
+    decision.Applicant = _parseMeta(tag, 'dg3Applicant')
+    decision.Opponents = _parseMeta(tag, 'dg3Opponent')
+    #appellants
+    #respondents
+
+    decision.ApplicationNumber = _parseMeta(tag, 'dg3APN')
+    decision.IPC = _parseMeta(tag, 'dg3CaseIPC')
+    decision.Title = _parseMeta(tag, 'dg3TLE').capitalize()
+    decision.ProcedureLanguage = _parseMeta(tag, 'dg3DecisionPRL')
+
+    decision.Board = _parseMeta(tag, 'dg3DecisionBoard')
+    decision.Keywords = _parseMeta(tag, 'dg3KEY')
+    decision.Articles = _parseMeta(tag, 'dg3ArtRef')
+    decision.Rules = _parseMeta(tag, 'dg3RuleRef')
+    decision.ECLI = _parseMeta(tag, 'dg3ECLI')
+    decision.CitedCases = _parseMeta(tag, 'dg3aDCI')
+    decision.Distribution = _parseMeta(tag, 'dg3DecisionDistributionKey')
+    #catchwords
+    decision.DecisionLanguage = _parseMeta(tag, 'dg3DecisionLang')
+
+    decision.PDFLink = _parseMeta(tag, 'dg3DecisionPDF')
+    decision.Link = tag.u.string
+
     hw = _parseMeta(tag, 'DC.title')
     finder = re.compile(r'\((.*)\)')
     found = re.search(finder, hw)
     if found:
         decision.Headword = found.group(1)
+        
 
-    decision.Link = tag.u.string
-
+    decision.MetaDownloaded = True
+    decision.save()
     return decision
 #endregion
 
@@ -114,7 +122,7 @@ def GetCaseFromNumber(caseNumber:str):
     # copy the meta to it.
     # If not, make a new one.
     
-    decision, created = Decision.objects.get_or_create(CaseNumber = caseNumber)            
+    decision, created = Decision.objects.get_or_create(CaseNumber = caseNumber.strip())            
     decision = CopyFromMeta(theResult, decision)
 
     return decision
@@ -265,9 +273,12 @@ def GetText_2(decision):
 
         headers = textSection.find_all('b')
         if not len(headers) == 3:
-            decision.FactsAndSubmissions = "See Reasons"
+            decision.FactsHeader = "See Reasons"
+            decision.Facts = ""
+            decision.ReasonsHeader = ""
             decision.Reasons = _parasToString(textSection.find_all('p'))
-            decision.Order = "See Reasons"
+            decision.OrderHeader = "See Reasons"
+            decision.Order = ""
             decision.TextDownloaded = True
             decision.HasSplitText = False
             decision.save()
@@ -279,7 +290,7 @@ def GetText_2(decision):
                 para = para.nextSibling
                 if para:
                     nextSib = para.nextSibling
-                    if nextSib.find('b'):    
+                    if not nextSib or nextSib.find('b'):    
                         textList.append(para)                    
                         return textList
                     else:
@@ -288,15 +299,15 @@ def GetText_2(decision):
                     return textList # we have just dealt with the last <p>
 
 
-        factsHeader = headers[0].string
         facts = loopToHeader([], headers[0].parent.nextSibling)
-        reasonsHeader = headers[1].string
         reasons = loopToHeader([], headers[1].parent.nextSibling)
-        orderHeader = headers[2].string
         order = loopToHeader([], headers[2].parent.nextSibling)
 
-        decision.FactsAndSubmissions = _parasToString(facts)
+        decision.FactsHeader =  headers[0].string
+        decision.Facts = _parasToString(facts)
+        decision.ReasonsHeader = headers[1].string
         decision.Reasons = _parasToString(reasons)
+        decision.OrderHeader = headers[2].string
         decision.Order = _parasToString(order)
         decision.TextDownloaded = True
         decision.HasSplitText = True
@@ -315,6 +326,7 @@ def GetText_2(decision):
 
     except Requests.Timeout:
         pass
+# endregion 
 
 
 def SearchLatest(number = 10):
@@ -386,4 +398,3 @@ def Search_Response(query = "", required = "", partial = "", language = None, st
 
     r = requests.get(searchUrl, params=payload)
     return r
-# endregion 

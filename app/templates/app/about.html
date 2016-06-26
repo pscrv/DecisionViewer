@@ -15,6 +15,53 @@
                         The decisions are held in a database, and it is the intention that it could become a separate repository for decisions.        
                     </p>
                 </div>
+
+                <div class="col-sm-6">
+                    <h4> State of the database </h4>
+                    <table class="table">
+                        <thead>
+                          <tr>
+                            <th> Decison type </th>
+                            <th> Number of cases </th>
+                            <th> Metadata downloaded </th>
+                            <th> Text downloaded </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td> T </td>
+                            <td> {{ TCount }} </td>
+                            <td> {{ TCountMeta }} </td>
+                            <td> {{ TCountText }} </td>
+                          </tr>
+                          <tr>
+                            <td> G </td>
+                            <td> {{ GCount }} </td>
+                            <td> {{ GCountMeta }} </td>
+                            <td> {{ GCountText }} </td>
+                          </tr>
+                          <tr>
+                            <td> R </td>
+                            <td> {{ RCount }} </td>
+                            <td> {{ RCountMeta }} </td>
+                            <td> {{ RCountText }} </td>
+                          </tr>
+                          <tr>
+                            <td> J </td>
+                            <td> {{ JCount }} </td>
+                            <td> {{ JCountMeta }} </td>
+                            <td> {{ JCountText }} </td>
+                          </tr>
+                          <tr>
+                            <td> Total </td>
+                            <td> {{ TotalCount }} </td>
+                            <td> {{ TotalCountMeta }} </td>
+                            <td> {{ TotalCountText }} </td>
+                          </tr>
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
         </div>
 

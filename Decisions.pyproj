@@ -40,15 +40,34 @@
     <Compile Include="app\ClassProperty.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="app\decisionFiller.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\epoConverter.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\epofacade.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\forms.py" />
-    <Compile Include="app\models.py" />
-    <Compile Include="app\test_app_classes.py">
+    <Compile Include="app\epoSearch.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\test_modules.py">
+    <Compile Include="app\forms.py" />
+    <Compile Include="app\models - Copy.py" />
+    <Compile Include="app\models.py" />
+    <Compile Include="app\test_decisionFiller.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\test_models.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\Tests\test_app_classes.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\Tests\test_modules.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\test_epoSearch.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\urls.py">
@@ -68,9 +87,13 @@
     <Compile Include="Decisions\settings.py" />
     <Compile Include="Decisions\urls.py" />
     <Compile Include="Decisions\wsgi.py" />
+    <Compile Include="app\test_epoConvertor.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="app\" />
+    <Folder Include="app\Tests\" />
     <Folder Include="app\static\" />
     <Folder Include="app\static\app\" />
     <Folder Include="app\static\app\content\" />

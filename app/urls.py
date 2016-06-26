@@ -10,7 +10,7 @@ from . import views
 
 urlpatterns = [
 	url(r'^$', views.home, name='home'),
-	url(r'^decision_details/(?P<pk>.+)/$', views.decision_details, name='decision_details'),
+	url(r'^decision_details/(?P<cn>.+)/$', views.decision_details, name='decision_details'),
     url(r'^search_caseNumber$', views.search_caseNumber, name='search_caseNumber'),
 	url(r'^contact$', views.contact, name='contact'),
 	url(r'^about', views.about, name='about'),

@@ -56,7 +56,7 @@ def GetDecisions():
 		textParagraphs = textSection.find_all('p')
 		text = "".join(para.string.strip() + '\n\n' for para in textParagraphs if not para.string.translate(noPunctionTranslationTable()).strip() == "")
 		split = _splitText(text, language)
-		newDecision.FactsAndSubmissions = split[0]
+		newDecision.Facts = split[0]
 		newDecision.Reasons = split[1]
 		newDecision.Order = split[2]
 
