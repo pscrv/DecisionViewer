@@ -30,21 +30,34 @@ def decision_details(request, cn):
     """Renders the decision_details page."""
     assert isinstance(request, HttpRequest)
 
-    try:
-        decision = get_object_or_404(Decision.objects, CaseNumber = cn)
-        decision = decisionFiller.get_text(decision.CaseNumber, decision.DecisionLanguage)
+    decision = Decision.objects.filter(CaseNumber = cn).first()
 
-        citedDecisions = []
-        if not decision.CitedCases == "":
-            for case in decision.CitedCases.split(','):
-                response = epoSearch.searchCaseNumber(case.strip())
-                dec = epoConverter.metaToDecision(response)
-                citedDecisions.append(dec)
-
-
-
-    except Decision.DoesNotExist:
+    # not in DB? Then look the the epo DB
+    if decision is None:
+        response = epoSearch.searchCaseNumber(cn)
+        decision = epoConverter.metaToDecision(response)
+     
+    # not available from the epo? Back where we came from   
+    if decision is None:
         return redirect(request.META['HTTP_REFERER'])
+
+
+    # here, we have a decision, either from the DB, or from the epo (and now in the DB)
+    decision = decisionFiller.get_text(decision.CaseNumber, decision.DecisionLanguage)
+
+    citedDecisions = []
+    if not decision.CitedCases == "":
+        for case in decision.CitedCases.split(','):
+            case = case.strip()
+            inDB = Decision.objects.filter(CaseNumber = case).first()
+            if inDB is None:
+                response = epoSearch.searchCaseNumber(case.strip())
+                inDB = epoConverter.metaToDecision(response)
+            else:
+                if not inDB.MetaDownloaded:
+                    inDB = decisionFiller.get_meta()
+                        
+            citedDecisions.append(inDB)
 
     return render(
         request,
@@ -69,20 +82,22 @@ def search_caseNumber(request):
 
         
     query = request.POST.get('q', None)
-    results = Decision.objects.filter(CaseNumber=query)
-    if results:
-        # Yay, found it in our DB
-        return redirect('decision_details', pk = results[0].pk)
-    else:
-        # Boo, not in our DB yet
-        newDecision = epofacade.GetCaseFromNumber(query)
-        if newDecision:
-            # Yes, got it from the EPO site
-            newDecision.save()
-            return redirect('decision_details', pk = newDecision.pk)
-        else:
-            # More boo, even EPO does not have it :-(
-            return redirect(request.META['HTTP_REFERER'])
+    return redirect('decision_details', cn = query)
+
+    #results = Decision.objects.filter(CaseNumber=query)
+    #if results:
+    #    # Yay, found it in our DB
+    #    return redirect('decision_details', pk = results[0].pk)
+    #else:
+    #    # Boo, not in our DB yet
+    #    newDecision = epofacade.GetCaseFromNumber(query)
+    #    if newDecision:
+    #        # Yes, got it from the EPO site
+    #        newDecision.save()
+    #        return redirect('decision_details', pk = newDecision.pk)
+    #    else:
+    #        # More boo, even EPO does not have it :-(
+    #        return redirect(request.META['HTTP_REFERER'])
         
 
 

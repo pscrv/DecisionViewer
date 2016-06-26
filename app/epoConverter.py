@@ -45,6 +45,9 @@ def metaToDecision(response):
     caseNumber = _parseMeta(soup, 'dg3CSNCase')
     procedureLanguage = _parseMeta(soup, 'dg3DecisionPRL')
     decision = Decision.objects.create_or_update(caseNumber, procedureLanguage)
+    
+    if decision is None: #will happen if we cannot extract a usable caseNumber or procedureLanguage
+        return decision
 
     #Find a result that has the decision in this language
     theResult = None

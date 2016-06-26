@@ -3,7 +3,6 @@ Definitions of models.
 """
 
 import re
-from . import epofacade
 from datetime import datetime
 from django.db import models
 
@@ -17,6 +16,10 @@ class DecisionManager(models.Manager):
         creates and returns a new decision, with the given CaseNumber and ProcedureLanguage, 
         unless one already exists; fills-in or overwrites the **kwargs fields 
         """
+
+        if caseNumber == "" or not decisionLanguage in ['DE', 'EN', 'FR']:
+            return None
+
 
         allowed_attributes = {
             'DecisionDate', 

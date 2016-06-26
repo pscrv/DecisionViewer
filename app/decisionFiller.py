@@ -18,8 +18,11 @@ def get_text(caseNumber, language, forceDownload = False):
     inDB = Decision.objects.filter(CaseNumber = caseNumber, DecisionLanguage = language).first() #there should be no more than one
     if inDB is None or not inDB.MetaDownloaded:
         inDB = get_meta(caseNumber, language, forceDownload = True)
-        
-    response = epoSearch.searchDecisionText(inDB.Link)
-    decision = epoConverter.textToDecision(response, caseNumber, language)
+    
+    if not inDB.TextDownloaded or forceDownload:    
+        response = epoSearch.searchDecisionText(inDB.Link)
+        decision = epoConverter.textToDecision(response, caseNumber, language)
+    else:
+        decision = inDB
     return decision
 

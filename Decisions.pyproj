@@ -31,7 +31,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="app\AppConstants.py">
+    <Compile Include="app\Obsolete - for deletion\AppConstants_obs.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\AppState.py">
@@ -46,7 +46,7 @@
     <Compile Include="app\epoConverter.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\epofacade.py">
+    <Compile Include="app\Obsolete - for deletion\epofacade_obs.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\epoSearch.py">
@@ -93,6 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="app\" />
+    <Folder Include="app\Obsolete - for deletion\" />
     <Folder Include="app\Tests\" />
     <Folder Include="app\static\" />
     <Folder Include="app\static\app\" />
