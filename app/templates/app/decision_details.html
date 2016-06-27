@@ -5,27 +5,29 @@
         <div class="container">
             <div class="row">
                 <div class="col-sm-4">
-                    <h1 class="casenumber"> {{ decision.CaseNumber}} </h1>
-                    <p class="headword"> {{ decision.Headword}}</p>
-                    <p class="ECLI"> {{ decision.ECLI}} </p>
-                    <p class="date+board"> {{decision.DecisionDate}} by board {{ decision.Board }}
-                        {% if decision.OnlineDate %}
-                            (online since {{ decision.OnlineDate }})
-                        {% endif %}
-                    </p>
-                    <h4 class="title"> {{ decision.Title }} </h4>
-                    <p class="applicant"> {{ decision.Applicant }} </p>
-                    {% if decision.Opponents %} <p class="opponents">Opponents: {{ decision.Opponents}} </p> {% endif %}
-                    {% if decision.Articles %} <p class="articles+rules"> Article(s) {{ decision.Articles }} </p> {% endif %}
-                    {% if decision.Rules %} <p class="articles+rules"> Rules {{ decision.Rules }} </p> {% endif %}
-                    <p class="keywords"> {{ decision.Keywords }} </p>
+                    <div class="panel panel-default" data-spy="affix">
+                        <h1 class="panel-heading casenumber" > {{ decision.CaseNumber}} </h1>
+                        <p class="panel-body headword"> {{ decision.Headword}}</p>
+                        <p class="ECLI"> {{ decision.ECLI}} </p>
+                        <p class="date+board"> {{decision.DecisionDate}} by board {{ decision.Board }}
+                            {% if decision.OnlineDate %}
+                                (online since {{ decision.OnlineDate }})
+                            {% endif %}
+                        </p>
+                        <h4 class="title"> {{ decision.Title }} </h4>
+                        <p class="applicant"> {{ decision.Applicant }} </p>
+                        {% if decision.Opponents %} <p class="opponents">Opponents: {{ decision.Opponents}} </p> {% endif %}
+                        {% if decision.Articles %} <p class="articles+rules"> Article(s) {{ decision.Articles }} </p> {% endif %}
+                        {% if decision.Rules %} <p class="articles+rules"> Rules {{ decision.Rules }} </p> {% endif %}
+                        <p class="keywords"> {{ decision.Keywords }} </p>
 
-                    {% if citedDecisions %}
-                            Cited decisions: 
-                            {% for cited in citedDecisions %}
-                                <a href="{% url 'decision_details' cn=cited.CaseNumber %}"> {{ cited.CaseNumber }}   </a>
-                            {% endfor %}                      
-                    {% endif %}
+                        {% if citedDecisions %}
+                                Cited decisions: 
+                                {% for cited in citedDecisions %}
+                                    <a href="{% url 'decision_details' cn=cited.CaseNumber %}"> {{ cited.CaseNumber }}   </a>
+                                {% endfor %}                      
+                        {% endif %}
+                    </div>
                 </div>
 
 

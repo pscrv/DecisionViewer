@@ -18,6 +18,7 @@ class AppState(object):
     def __update_latest__(cls, forceUpdate:bool = True):
 
         cls._latestCaseList = Decision.objects.order_by('OnlineDate')[:10]
+        cls._latestFromEPO = True
 
         if not forceUpdate and cls._lastGetLatest == datetime.date.today():
             return
@@ -26,7 +27,7 @@ class AppState(object):
 
         try:
             response = epoSearch.searchLatest()
-            epoLatest = epoConverter.toDecisionList()
+            epoLatest = epoConverter.toDecisionList(response)
             cls._latestFromEPO = True
         except:
             epoLatest = []

@@ -3,32 +3,32 @@
 {% block content %}
 
         
-    <div class="col-sm-8">
+    <h3> The latest ten decisions </h3>
+    {% if not epoContact %}<p> There is no connection to the EPO server. Only data from our database are available, but we will keep trying. </p>{% endif %}
 
-            <h3> The latest ten decisions </h3>
-            {% if not epoContact %}<p> There is no connection to the EPO server. Only data from our database are available, but we will keep trying. </p>{% endif %}
+    <div class="col-sm-9">
 	    
             {% for dec in decisions %}
             <a href="{% url 'decision_details' cn=dec.CaseNumber %}">
-                <div class="row">
-                    <hr />
+                <div class="row well well-sm">
                     <div class="col-sm-2">
 		                {{ dec.CaseNumber }}
                     </div>
                     <div class="col-sm-1">
                         {{ dec.Board }}
                     </div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-5">
                         {{ dec.Title }}
                     </div>
                 </div>
             </a>
             {% endfor %}
     </div>
+    
 
-    <div class="col-sm-4">
+    <div class="col-sm-3">
         <div class="row">
-            <form method="POST" action="{% url 'search_caseNumber' %}" class="post-form">
+            <form method="POST" action="{% url 'search_caseNumber' %}" class="post-form pull-right">
                 {% csrf_token %}
                 <input name="q" placeholder="Case number" class="searchfield" type="text" id="searchbox">
                 <button type="submit" class="search btn btn-default">Search</button>
