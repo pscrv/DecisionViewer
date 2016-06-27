@@ -31,6 +31,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="app\dataFormatters.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="app\Obsolete - for deletion\AppConstants_obs.py">
       <SubType>Code</SubType>
     </Compile>
@@ -53,9 +56,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\forms.py" />
-    <Compile Include="app\models - Copy.py" />
+    <Compile Include="app\Obsolete - for deletion\models - Copy.py" />
     <Compile Include="app\models.py" />
     <Compile Include="app\test_decisionFiller.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="app\test_formatters.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\test_models.py">

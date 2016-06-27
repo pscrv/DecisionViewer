@@ -4,10 +4,10 @@
 
         <div class="container">
             <div class="row">
-                <div class="col-sm-4">
-                    <div class="panel panel-default" data-spy="affix">
-                        <h1 class="panel-heading casenumber" > {{ decision.CaseNumber}} </h1>
-                        <p class="panel-body headword"> {{ decision.Headword}}</p>
+                <div class="col-sm-4" id="bibl-display-parent">
+                    <div class="bibl-display" id="bibl-display-div" data-spy="affix">
+                        <h1 class="casenumber" > {{ decision.CaseNumber}} </h1>
+                        <p class="headword"> {{ decision.Headword}}</p>
                         <p class="ECLI"> {{ decision.ECLI}} </p>
                         <p class="date+board"> {{decision.DecisionDate}} by board {{ decision.Board }}
                             {% if decision.OnlineDate %}
@@ -71,4 +71,14 @@
             </div>
         </div>
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+    /* Responsive width when using the bootstrap affix plugin (width became absolute) with a fluid grid */
+    $(function(){
+    var biblDisplayWidth=$('#bibl-display-parent').width();
+    $('#bibl-display-div').css('width', biblDisplayWidth);
+    });
+</script>
 {% endblock %}

@@ -8,7 +8,7 @@ from django.template import RequestContext
 from datetime import datetime
 from .models import Decision
 from .AppState import AppState
-from . import epoSearch, epoConverter, decisionFiller
+from . import epoSearch, epoConverter, decisionFiller, dataFormatters
 
 def home(request):
     """Renders the home page."""
@@ -30,6 +30,7 @@ def decision_details(request, cn):
     """Renders the decision_details page."""
     assert isinstance(request, HttpRequest)
 
+    cn = dataFormatters.formatCaseNumber(cn)
     decision = Decision.objects.filter(CaseNumber = cn).first()
 
     # not in DB? Then look the the epo DB

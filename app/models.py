@@ -132,9 +132,9 @@ class Decision(models.Model):
     def __str__(self):
         return self.CaseNumber
 
-    def save(self):
-        self.Title = self.Title.capitalize()
-        super(Decision, self).save()
+    #def save(self):
+    #    self.Title = self.Title.capitalize()
+    #    super(Decision, self).save()
 
 
     def update(self, **kwargs):
