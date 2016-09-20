@@ -21,8 +21,7 @@ class AppState(object):
         cls._latestFromEPO = True
 
         if not forceUpdate and cls._lastGetLatest == datetime.date.today():
-            return
-                
+            return                
 
 
         try:

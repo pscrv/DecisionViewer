@@ -1,5 +1,5 @@
 """
-Interface methods for querying EPO databases
+Fucntions for querying EPO databases
 """
 import requests
 import datetime

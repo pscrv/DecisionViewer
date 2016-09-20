@@ -34,9 +34,6 @@
     <Compile Include="app\dataFormatters.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\Obsolete - for deletion\AppConstants_obs.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="app\AppState.py">
       <SubType>Code</SubType>
     </Compile>
@@ -49,14 +46,10 @@
     <Compile Include="app\epoConverter.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="app\Obsolete - for deletion\epofacade_obs.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="app\epoSearch.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="app\forms.py" />
-    <Compile Include="app\Obsolete - for deletion\models - Copy.py" />
     <Compile Include="app\models.py" />
     <Compile Include="app\test_decisionFiller.py">
       <SubType>Code</SubType>

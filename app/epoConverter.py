@@ -1,5 +1,5 @@
 """
-Interface for converting responses from epoSearch to useful data
+Functions for converting responses from epoSearch to useful data
 """
 
 import re
@@ -22,7 +22,6 @@ def toCaseList(response):
         found = re.search(finder, caseString)
         if found:
             decisionList.append(found.group(1))
-
     return decisionList
 
 

@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 from app.AppConstants import searchUrl, noPunctionTranslationTable, factFinder, reasonsFinder, orderFinder
 
 import os
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Decisions.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Decision.settings')
 import django
 django.setup()
 from app.models import Decision

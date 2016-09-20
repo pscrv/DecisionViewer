@@ -42,7 +42,7 @@ TIME_ZONE = 'Europe/Berlin'
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'en-uk'
+LANGUAGE_CODE = 'en-gb'
 
 SITE_ID = 1
 
@@ -125,6 +125,7 @@ WSGI_APPLICATION = 'Decisions.wsgi.application'
     # Don't forget to use absolute paths, not relative paths.
 #)
 
+
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -170,7 +171,6 @@ LOGGING = {
 
 # Specify the default test runner.
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
-
 
 
 # Template setttings, replacing deprecated settings.

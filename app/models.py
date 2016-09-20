@@ -70,7 +70,7 @@ class Decision(models.Model):
     objects = DecisionManager()
 
     LANGUAGES = [('DE','DE'), ('EN','EN'), ('FR','FR')]
-    DISTRIBUTION_CODES = [('A','A'), ('B','B'), ('C','D'), ('D','D')]
+    DISTRIBUTION_CODES = [('A','A'), ('B','B'), ('C','C'), ('D','D')]
     
     CaseNumber = models.CharField(max_length = 16, default = "")
 
@@ -180,7 +180,7 @@ class Decision(models.Model):
         
         self.save()
 
-    #endregion
+        #endregion
 
 
 
